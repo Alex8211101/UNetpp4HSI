@@ -35,13 +35,13 @@ train_transform = transforms_seg.Compose([
 
 imgs_dirs = './train_data'
 
-val_ratio = 0.2
+# val_ratio = 0.2
 random_state = 42
 
 mass_dataset = ZHDataset(train_path = imgs_dirs, transform=train_transform)
-sample_nums = len(mass_dataset)
-sample_nums_train = sample_nums*(1-val_ratio)
-train_data, valid_data = torch.utils.data.random_split(mass_dataset, [int(sample_nums_train), sample_nums-int(sample_nums_train)])
+# sample_nums = len(mass_dataset)
+# sample_nums_train = sample_nums*(1-val_ratio)
+# train_data, valid_data = torch.utils.data.random_split(mass_dataset, [int(sample_nums_train), sample_nums-int(sample_nums_train)])
 
 
 
@@ -58,7 +58,7 @@ if not os.path.exists(save_log_dir):
 
 param = {}
 
-param['epochs'] = 300         
+param['epochs'] = 50         
 param['batch_size'] = 16     
 param['lr'] = 1e-3            
 param['gamma'] = 0.2          
@@ -73,10 +73,10 @@ param['min_inter'] = 10
 param['model_name'] = model_name          
 param['save_log_dir'] = save_log_dir      
 param['save_ckpt_dir'] = save_ckpt_dir    
-
+param['k_folds'] = 5
 
 param['load_ckpt_dir'] = None
 
 
 # if __name__ == '__main__':
-best_model, model = train_net(param, model, train_data,valid_data,plot=True)
+best_models, models = train_net(param, model, mass_dataset, plot=True)
