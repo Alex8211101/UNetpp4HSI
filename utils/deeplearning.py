@@ -92,8 +92,8 @@ def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
         # Define data loaders for training and testing data in this fold
         train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
         valid_loader = DataLoader(dataset=valid_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
-        train_data_size = train_loader.__len__()
-        valid_data_size = valid_loader.__len__()
+        train_data_size = train_dataset.__len__()
+        valid_data_size = valid_dataset.__len__()
         c, y, x = train_loader.__getitem__(0)['image'].shape
         # train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True, num_workers=2)
         # valid_loader = DataLoader(dataset=valid_data, batch_size=batch_size, shuffle=False, num_workers=2)
