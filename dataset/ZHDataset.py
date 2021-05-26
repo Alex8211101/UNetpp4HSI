@@ -23,15 +23,14 @@ def read_img(filename):
     return im_data
 class ZHDataset(Dataset):
 
-    def __init__(self, train_path, train=True,transform=None):
+    def __init__(self, imgs_dirs, train=True,transform=None):
 
 
 
-        tmp_list = sorted(glob.glob(os.path.join(train_path,"img*.tif")),key=os.path.getmtime)
-        gt_list = sorted(glob.glob(os.path.join(train_path,"gt*.tif")),key=os.path.getmtime)
+        tmp_list = imgs_dirs
         self.train = train
         self.mask_list = tmp_list
-        self.gt_path = gt_list
+        # self.gt_path = gt_list
         self.transform = transform
 
     def __len__(self):
@@ -41,7 +40,7 @@ class ZHDataset(Dataset):
 
 
         image = read_img(self.mask_list[idx])
-        mask = read_img(self.gt_path[idx])
+        mask = read_img(self.mask_list[idx].replace('img','gt'))
 
         if self.transform:
             image = image.transpose(1, 2, 0)
@@ -52,5 +51,4 @@ class ZHDataset(Dataset):
         return sample
 
 
-# sample1 = ZHDataset('./train_data/')[0]
-# print("end")
+

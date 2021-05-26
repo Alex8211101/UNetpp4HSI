@@ -85,8 +85,8 @@ def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
         # train_subsampler = torch.utils.data.SubsetRandomSampler(train_ids)
         # test_subsampler = torch.utils.data.SubsetRandomSampler(test_ids)
 
-        train_dataset = ZHDataset(train_path = imgs_dirs[train_ids], train=True,transform=train_transform)
-        valid_dataset = ZHDataset(train_path = imgs_dirs[test_ids], train=False,transform=None)
+        train_dataset = ZHDataset(imgs_dirs = imgs_dirs[train_ids], train=True,transform=train_transform)
+        valid_dataset = ZHDataset(imgs_dirs = imgs_dirs[test_ids], train=False,transform=None)
 
         
         # Define data loaders for training and testing data in this fold

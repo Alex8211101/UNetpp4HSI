@@ -1,3 +1,4 @@
+import glob
 import os
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
@@ -33,8 +34,8 @@ train_transform = transforms_seg.Compose([
     # transforms_seg.RandomRotationY(),
 ])
 
-imgs_dirs = './train_data'
-
+train_path = './train_data'
+imgs_dirs = sorted(glob.glob(os.path.join(train_path,"img*.tif")),key=os.path.getmtime)
 # val_ratio = 0.2
 random_state = 42
 imgs_dirs = np.array(imgs_dirs)
