@@ -37,8 +37,9 @@ imgs_dirs = './train_data'
 
 # val_ratio = 0.2
 random_state = 42
+imgs_dirs = np.array(imgs_dirs)
 
-mass_dataset = ZHDataset(train_path = imgs_dirs, transform=train_transform)
+# mass_dataset = ZHDataset(train_path = imgs_dirs, transform=train_transform)
 # sample_nums = len(mass_dataset)
 # sample_nums_train = sample_nums*(1-val_ratio)
 # train_data, valid_data = torch.utils.data.random_split(mass_dataset, [int(sample_nums_train), sample_nums-int(sample_nums_train)])
@@ -79,4 +80,4 @@ param['load_ckpt_dir'] = None
 
 
 # if __name__ == '__main__':
-best_models, models = train_net(param, model, mass_dataset, plot=True)
+best_models, models = train_net(param, model, imgs_dirs,train_transform, plot=True)
