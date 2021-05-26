@@ -77,7 +77,8 @@ def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
     # sample_nums = len(mass_dataset)
     # sample_nums_train = sample_nums*(1-val_ratio)
     # train_data, valid_data = torch.utils.data.random_split(mass_dataset, [int(sample_nums_train), sample_nums-int(sample_nums_train)])
-
+    
+    
     for fold, (train_ids, test_ids) in enumerate(kfold.split(imgs_dirs)):
         print(f'FOLD {fold}')
         print('--------------------------------')
@@ -94,7 +95,7 @@ def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
         valid_loader = DataLoader(dataset=valid_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
         train_data_size = train_dataset.__len__()
         valid_data_size = valid_dataset.__len__()
-        c, y, x = train_loader.__getitem__(0)['image'].shape
+        c, y, x = train_dataset.__getitem__(0)['image'].shape
         # train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True, num_workers=2)
         # valid_loader = DataLoader(dataset=valid_data, batch_size=batch_size, shuffle=False, num_workers=2)
         optimizer = optim.AdamW(model.parameters(), lr=lr ,weight_decay=weight_decay)
@@ -160,7 +161,7 @@ def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
             model.eval()
             valid_epoch_loss = AverageMeter()
             valid_iter_loss = AverageMeter()
-            iou=IOUMetric(10)
+            iou=IOUMetric(4)
             with torch.no_grad():
                 for batch_idx, batch_samples in enumerate(valid_loader):
                     data, target = batch_samples['image'], batch_samples['label']
@@ -202,6 +203,8 @@ def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
                 logger.info('[save] Best Model saved at epoch:{} fold:{} ============================='.format(epoch,fold))
             scheduler.step()
 
+        logger.handlers.clear()
+        
         if plot:
             x = [i for i in range(epochs)]
             fig = plt.figure(figsize=(12, 4))

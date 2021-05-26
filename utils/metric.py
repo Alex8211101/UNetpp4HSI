@@ -6,12 +6,12 @@ class IOUMetric:
     Class to calculate mean-iou using fast_hist method
     """
 
-    def __init__(self, num_classes=10):
-        self.num_classes = num_classes-1
+    def __init__(self, num_classes=4):
+        self.num_classes = num_classes
         self.hist = np.zeros((num_classes, num_classes))
 
     def _fast_hist(self, label_pred, label_true):
-        mask = (label_true > 0) & (label_true < self.num_classes)
+        mask = (label_true > 0) & (label_true <= self.num_classes)
         hist = np.bincount(
             self.num_classes * label_true[mask].astype(int) +
             label_pred[mask], minlength=self.num_classes ** 2).reshape(self.num_classes, self.num_classes)
