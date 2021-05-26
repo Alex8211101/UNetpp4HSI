@@ -13,6 +13,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from albumentations.augmentations import functional as F
+from dataset.ZHDataset import ZHDataset
 from PIL import Image
 from pytorch_toolbelt import losses as L
 from segmentation_models_pytorch.losses import (DiceLoss, FocalLoss,
@@ -42,7 +43,7 @@ def smooth(v, w=0.85):
         last = smoothed_val
     return smoothed
 
-def train_net(param, model, mass_dataset,plot=False,device='cuda'):
+def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
 
     model_name      = param['model_name']
     epochs          = param['epochs']
@@ -71,29 +72,29 @@ def train_net(param, model, mass_dataset,plot=False,device='cuda'):
     best_modes = {}
   
     # Set fixed random number seed
-    torch.manual_seed(42)
-    kfold = KFold(n_splits=k_folds, shuffle=True)
+    # torch.manual_seed(42)
+    kfold = KFold(n_splits=k_folds, shuffle=True,random_state=42)
     # sample_nums = len(mass_dataset)
     # sample_nums_train = sample_nums*(1-val_ratio)
     # train_data, valid_data = torch.utils.data.random_split(mass_dataset, [int(sample_nums_train), sample_nums-int(sample_nums_train)])
 
-    for fold, (train_ids, test_ids) in enumerate(kfold.split(mass_dataset)):
+    for fold, (train_ids, test_ids) in enumerate(kfold.split(imgs_dirs)):
         print(f'FOLD {fold}')
         print('--------------------------------')
 
-        train_subsampler = torch.utils.data.SubsetRandomSampler(train_ids)
-        test_subsampler = torch.utils.data.SubsetRandomSampler(test_ids)
+        # train_subsampler = torch.utils.data.SubsetRandomSampler(train_ids)
+        # test_subsampler = torch.utils.data.SubsetRandomSampler(test_ids)
+
+        train_dataset = ZHDataset(train_path = imgs_dirs[train_ids], train=True,transform=train_transform)
+        valid_dataset = ZHDataset(train_path = imgs_dirs[test_ids], train=False,transform=None)
+
         
         # Define data loaders for training and testing data in this fold
-        train_loader = torch.utils.data.DataLoader(
-                        mass_dataset, 
-                        batch_size=batch_size, sampler=train_subsampler)
-        valid_loader = torch.utils.data.DataLoader(
-                        mass_dataset,
-                        batch_size=batch_size, sampler=test_subsampler)
+        train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+        valid_loader = DataLoader(dataset=valid_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
         train_data_size = train_loader.__len__()
         valid_data_size = valid_loader.__len__()
-        c, y, x = mass_dataset.__getitem__(0)['image'].shape
+        c, y, x = train_loader.__getitem__(0)['image'].shape
         # train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True, num_workers=2)
         # valid_loader = DataLoader(dataset=valid_data, batch_size=batch_size, shuffle=False, num_workers=2)
         optimizer = optim.AdamW(model.parameters(), lr=lr ,weight_decay=weight_decay)
