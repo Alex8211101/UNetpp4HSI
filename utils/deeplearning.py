@@ -42,6 +42,15 @@ def smooth(v, w=0.85):
         smoothed.append(smoothed_val)
         last = smoothed_val
     return smoothed
+def reset_weights(m):
+  '''
+    Try resetting model weights to avoid
+    weight leakage.
+  '''
+  for layer in m.children():
+   if hasattr(layer, 'reset_parameters'):
+    print(f'Reset trainable parameters of layer = {layer}')
+    layer.reset_parameters()
 
 def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
 
@@ -72,7 +81,7 @@ def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
     best_modes = {}
   
     # Set fixed random number seed
-    # torch.manual_seed(42)
+    torch.manual_seed(42)
     kfold = KFold(n_splits=k_folds, shuffle=True,random_state=42)
     # sample_nums = len(mass_dataset)
     # sample_nums_train = sample_nums*(1-val_ratio)
@@ -126,7 +135,7 @@ def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
 
         logger.info('Total Epoch:{} Image_size:({}, {}) Training num:{}  Validation num:{}'.format(epochs, x, y, train_data_size, valid_data_size))
         #
-
+        model.apply(reset_weights)
         for epoch in range(epoch_start, epochs):
             epoch_start = time.time()
 
@@ -161,7 +170,7 @@ def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
             model.eval()
             valid_epoch_loss = AverageMeter()
             valid_iter_loss = AverageMeter()
-            iou=IOUMetric(4)
+            iou=IOUMetric(5)
             with torch.no_grad():
                 for batch_idx, batch_samples in enumerate(valid_loader):
                     data, target = batch_samples['image'], batch_samples['label']
@@ -180,8 +189,8 @@ def train_net(param, model, imgs_dirs,train_transform,plot=False,device='cuda'):
                     #     logger.info('[val] epoch:{} iter:{}/{} {:.2f}% loss:{:.6f}'.format(
                     #         epoch, batch_idx, valid_loader_size, batch_idx / valid_loader_size * 100, valid_iter_loss.avg))
                 val_loss=valid_iter_loss.avg
-                acc, acc_cls, iu, mean_iu, fwavacc=iou.evaluate()
-                logger.info('[val] epoch:{} miou:{:.4f}'.format(epoch,mean_iu))
+                acc, kappa, acc_cls, iu, mean_iu, fwavacc=iou.evaluate()
+                logger.info('[val] epoch:{} miou:{:.4f} kappa:{:.4f}'.format(epoch,mean_iu,kappa))
                     
 
 
